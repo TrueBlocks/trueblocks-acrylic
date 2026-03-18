@@ -1,39 +1,185 @@
-export namespace color {
+export namespace app {
 	
-	export class Lab {
-	    L: number;
-	    A: number;
-	    B: number;
+	export class ProcessingResult {
+	    projectId: number;
+	    colors: db.ProjectColorWithMatches[];
 	
 	    static createFrom(source: any = {}) {
-	        return new Lab(source);
+	        return new ProcessingResult(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.L = source["L"];
-	        this.A = source["A"];
-	        this.B = source["B"];
+	        this.projectId = source["projectId"];
+	        this.colors = this.convertValues(source["colors"], db.ProjectColorWithMatches);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
+export namespace appkit {
+	
+	export class RangeFilter {
+	    min?: number;
+	    max?: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new RangeFilter(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.min = source["min"];
+	        this.max = source["max"];
+	    }
+	}
+	export class SortColumn {
+	    column: string;
+	    direction: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SortColumn(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.column = source["column"];
+	        this.direction = source["direction"];
+	    }
+	}
+	export class ViewSort {
+	    primary: SortColumn;
+	    secondary: SortColumn;
+	    tertiary: SortColumn;
+	    quaternary: SortColumn;
+	
+	    static createFrom(source: any = {}) {
+	        return new ViewSort(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.primary = this.convertValues(source["primary"], SortColumn);
+	        this.secondary = this.convertValues(source["secondary"], SortColumn);
+	        this.tertiary = this.convertValues(source["tertiary"], SortColumn);
+	        this.quaternary = this.convertValues(source["quaternary"], SortColumn);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class TableState {
+	    search?: string;
+	    sort?: ViewSort;
+	    page?: number;
+	    pageSize?: number;
+	    filters?: Record<string, Array<string>>;
+	    rangeFilters?: Record<string, RangeFilter>;
+	    selectedIndex?: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new TableState(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.search = source["search"];
+	        this.sort = this.convertValues(source["sort"], ViewSort);
+	        this.page = source["page"];
+	        this.pageSize = source["pageSize"];
+	        this.filters = source["filters"];
+	        this.rangeFilters = this.convertValues(source["rangeFilters"], RangeFilter, true);
+	        this.selectedIndex = source["selectedIndex"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class UIPreferences {
+	    theme: string;
+	    darkMode: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new UIPreferences(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.theme = source["theme"];
+	        this.darkMode = source["darkMode"];
 	    }
 	}
 
 }
 
-export namespace inventory {
+export namespace db {
 	
-	export class PaintProduct {
+	export class Paint {
 	    id: string;
 	    brand: string;
 	    name: string;
 	    series: number;
 	    opacity: string;
 	    pigments: string;
-	    rgb: number[];
+	    r: number;
+	    g: number;
+	    b: number;
 	    hex: string;
-	    lab: color.Lab;
+	    labL: number;
+	    labA: number;
+	    labB: number;
+	    owned: boolean;
 	
 	    static createFrom(source: any = {}) {
-	        return new PaintProduct(source);
+	        return new Paint(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -44,84 +190,34 @@ export namespace inventory {
 	        this.series = source["series"];
 	        this.opacity = source["opacity"];
 	        this.pigments = source["pigments"];
-	        this.rgb = source["rgb"];
-	        this.hex = source["hex"];
-	        this.lab = this.convertValues(source["lab"], color.Lab);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-
-}
-
-export namespace main {
-	
-	export class ColorInfo {
-	    r: number;
-	    g: number;
-	    b: number;
-	    hex: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new ColorInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.r = source["r"];
 	        this.g = source["g"];
 	        this.b = source["b"];
 	        this.hex = source["hex"];
+	        this.labL = source["labL"];
+	        this.labA = source["labA"];
+	        this.labB = source["labB"];
+	        this.owned = source["owned"];
 	    }
 	}
-	export class MixingRecipeItem {
-	    name: string;
+	export class MatchPart {
+	    id: number;
+	    matchId: number;
+	    paintId: string;
 	    parts: number;
-	    hex: string;
+	    paint: Paint;
 	
 	    static createFrom(source: any = {}) {
-	        return new MixingRecipeItem(source);
+	        return new MatchPart(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
+	        this.id = source["id"];
+	        this.matchId = source["matchId"];
+	        this.paintId = source["paintId"];
 	        this.parts = source["parts"];
-	        this.hex = source["hex"];
-	    }
-	}
-	export class PaletteColorInfo {
-	    hex: string;
-	    colorNumber: number;
-	    mixingRecipe: MixingRecipeItem[];
-	    isolationImageData: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new PaletteColorInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.hex = source["hex"];
-	        this.colorNumber = source["colorNumber"];
-	        this.mixingRecipe = this.convertValues(source["mixingRecipe"], MixingRecipeItem);
-	        this.isolationImageData = source["isolationImageData"];
+	        this.paint = this.convertValues(source["paint"], Paint);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -142,256 +238,112 @@ export namespace main {
 		    return a;
 		}
 	}
-	export class ShoppingListPaint {
-	    name: string;
-	    brand: string;
-	    series: number;
-	    pigments: string;
-	    opacity: string;
-	    hex: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new ShoppingListPaint(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.brand = source["brand"];
-	        this.series = source["series"];
-	        this.pigments = source["pigments"];
-	        this.opacity = source["opacity"];
-	        this.hex = source["hex"];
-	    }
-	}
-	export class ComparisonPDFData {
-	    modifiedImageData: string;
-	    originalImageData: string;
-	    shoppingList: ShoppingListPaint[];
-	    palette: PaletteColorInfo[];
-	
-	    static createFrom(source: any = {}) {
-	        return new ComparisonPDFData(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.modifiedImageData = source["modifiedImageData"];
-	        this.originalImageData = source["originalImageData"];
-	        this.shoppingList = this.convertValues(source["shoppingList"], ShoppingListPaint);
-	        this.palette = this.convertValues(source["palette"], PaletteColorInfo);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class MixingPart {
-	    paint: inventory.PaintProduct;
-	    parts: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new MixingPart(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.paint = this.convertValues(source["paint"], inventory.PaintProduct);
-	        this.parts = source["parts"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	
-	export class PDFPaintPart {
-	    name: string;
-	    brand: string;
-	    series: number;
-	    pigments: string;
-	    opacity: string;
-	    hex: string;
-	    rgb: number[];
-	    parts: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new PDFPaintPart(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.brand = source["brand"];
-	        this.series = source["series"];
-	        this.pigments = source["pigments"];
-	        this.opacity = source["opacity"];
-	        this.hex = source["hex"];
-	        this.rgb = source["rgb"];
-	        this.parts = source["parts"];
-	    }
-	}
-	export class PDFExportData {
-	    colorIndex: number;
-	    imageData: string;
-	    originalImageData: string;
-	    targetHex: string;
-	    targetRGB: number[];
-	    resultHex: string;
-	    mixingRecipe: PDFPaintPart[];
-	    totalParts: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new PDFExportData(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.colorIndex = source["colorIndex"];
-	        this.imageData = source["imageData"];
-	        this.originalImageData = source["originalImageData"];
-	        this.targetHex = source["targetHex"];
-	        this.targetRGB = source["targetRGB"];
-	        this.resultHex = source["resultHex"];
-	        this.mixingRecipe = this.convertValues(source["mixingRecipe"], PDFPaintPart);
-	        this.totalParts = source["totalParts"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	
-	export class PbnPaletteItem {
-	    hex: string;
-	    colorNumber: number;
-	    highlightedPbnImage: string;
-	    mixingRecipe: MixingRecipeItem[];
-	
-	    static createFrom(source: any = {}) {
-	        return new PbnPaletteItem(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.hex = source["hex"];
-	        this.colorNumber = source["colorNumber"];
-	        this.highlightedPbnImage = source["highlightedPbnImage"];
-	        this.mixingRecipe = this.convertValues(source["mixingRecipe"], MixingRecipeItem);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class PaintByNumbersPDFData {
-	    paintByNumbersImageData: string;
-	    fullPagePbnImageData: string;
-	    originalImageData: string;
-	    shoppingList: ShoppingListPaint[];
-	    palette: PbnPaletteItem[];
-	
-	    static createFrom(source: any = {}) {
-	        return new PaintByNumbersPDFData(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.paintByNumbersImageData = source["paintByNumbersImageData"];
-	        this.fullPagePbnImageData = source["fullPagePbnImageData"];
-	        this.originalImageData = source["originalImageData"];
-	        this.shoppingList = this.convertValues(source["shoppingList"], ShoppingListPaint);
-	        this.palette = this.convertValues(source["palette"], PbnPaletteItem);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class PaintMatch {
-	    paint: inventory.PaintProduct;
+	export class ColorMatch {
+	    id: number;
+	    colorId: number;
+	    matchType: string;
+	    rank: number;
 	    deltaE: number;
 	    matchRating: string;
+	    parts: MatchPart[];
 	
 	    static createFrom(source: any = {}) {
-	        return new PaintMatch(source);
+	        return new ColorMatch(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.paint = this.convertValues(source["paint"], inventory.PaintProduct);
+	        this.id = source["id"];
+	        this.colorId = source["colorId"];
+	        this.matchType = source["matchType"];
+	        this.rank = source["rank"];
 	        this.deltaE = source["deltaE"];
 	        this.matchRating = source["matchRating"];
+	        this.parts = this.convertValues(source["parts"], MatchPart);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class FavoritePart {
+	    id: number;
+	    favoriteId: number;
+	    paintId: string;
+	    parts: number;
+	    paint: Paint;
+	
+	    static createFrom(source: any = {}) {
+	        return new FavoritePart(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.favoriteId = source["favoriteId"];
+	        this.paintId = source["paintId"];
+	        this.parts = source["parts"];
+	        this.paint = this.convertValues(source["paint"], Paint);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Favorite {
+	    id: number;
+	    name: string;
+	    notes: string;
+	    r: number;
+	    g: number;
+	    b: number;
+	    hex: string;
+	    createdAt: string;
+	    parts: FavoritePart[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Favorite(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.notes = source["notes"];
+	        this.r = source["r"];
+	        this.g = source["g"];
+	        this.b = source["b"];
+	        this.hex = source["hex"];
+	        this.createdAt = source["createdAt"];
+	        this.parts = this.convertValues(source["parts"], FavoritePart);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -413,20 +365,96 @@ export namespace main {
 		}
 	}
 	
-	export class PaletteResult {
-	    dominantColor: ColorInfo;
-	    paintMatches: PaintMatch[];
-	    mixingRecipe: MixingPart[];
+	
+	
+	export class PaintFilterOptions {
+	    brands: string[];
+	    opacities: string[];
 	
 	    static createFrom(source: any = {}) {
-	        return new PaletteResult(source);
+	        return new PaintFilterOptions(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.dominantColor = this.convertValues(source["dominantColor"], ColorInfo);
-	        this.paintMatches = this.convertValues(source["paintMatches"], PaintMatch);
-	        this.mixingRecipe = this.convertValues(source["mixingRecipe"], MixingPart);
+	        this.brands = source["brands"];
+	        this.opacities = source["opacities"];
+	    }
+	}
+	export class Project {
+	    id: number;
+	    name: string;
+	    imagePath: string;
+	    thumbnailPath: string;
+	    nColors: number;
+	    tileSize: number;
+	    posterize: boolean;
+	    smoothingPasses: number;
+	    aspectRatio: string;
+	    matchOwnedOnly: boolean;
+	    notes: string;
+	    createdAt: string;
+	    updatedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Project(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.imagePath = source["imagePath"];
+	        this.thumbnailPath = source["thumbnailPath"];
+	        this.nColors = source["nColors"];
+	        this.tileSize = source["tileSize"];
+	        this.posterize = source["posterize"];
+	        this.smoothingPasses = source["smoothingPasses"];
+	        this.aspectRatio = source["aspectRatio"];
+	        this.matchOwnedOnly = source["matchOwnedOnly"];
+	        this.notes = source["notes"];
+	        this.createdAt = source["createdAt"];
+	        this.updatedAt = source["updatedAt"];
+	    }
+	}
+	export class ProjectColor {
+	    id: number;
+	    projectId: number;
+	    sortOrder: number;
+	    r: number;
+	    g: number;
+	    b: number;
+	    hex: string;
+	    pixelCount: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProjectColor(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.projectId = source["projectId"];
+	        this.sortOrder = source["sortOrder"];
+	        this.r = source["r"];
+	        this.g = source["g"];
+	        this.b = source["b"];
+	        this.hex = source["hex"];
+	        this.pixelCount = source["pixelCount"];
+	    }
+	}
+	export class ProjectColorWithMatches {
+	    color: ProjectColor;
+	    matches: ColorMatch[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ProjectColorWithMatches(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.color = this.convertValues(source["color"], ProjectColor);
+	        this.matches = this.convertValues(source["matches"], ColorMatch);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -446,80 +474,6 @@ export namespace main {
 		    }
 		    return a;
 		}
-	}
-	
-	export class ProcessingResult {
-	    imageData: string;
-	    palette: PaletteResult[];
-	    imageWidth: number;
-	    imageHeight: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new ProcessingResult(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.imageData = source["imageData"];
-	        this.palette = this.convertValues(source["palette"], PaletteResult);
-	        this.imageWidth = source["imageWidth"];
-	        this.imageHeight = source["imageHeight"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class RecentImageInfo {
-	    originalPath: string;
-	    copiedPath: string;
-	    filename: string;
-	    processedAt: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new RecentImageInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.originalPath = source["originalPath"];
-	        this.copiedPath = source["copiedPath"];
-	        this.filename = source["filename"];
-	        this.processedAt = source["processedAt"];
-	    }
-	}
-	
-	export class WindowSettings {
-	    x: number;
-	    y: number;
-	    width: number;
-	    height: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new WindowSettings(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.x = source["x"];
-	        this.y = source["y"];
-	        this.width = source["width"];
-	        this.height = source["height"];
-	    }
 	}
 
 }

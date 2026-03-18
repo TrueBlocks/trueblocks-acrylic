@@ -1,104 +1,51 @@
 package main
 
 import (
-	"context"
 	"embed"
+	"fmt"
+	"log"
 
-	"github.com/TrueBlocks/trueblocks-shopping/internal/settings"
-
-	"github.com/wailsapp/wails/v2"
+	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
+	"github.com/TrueBlocks/trueblocks-shopping/app"
+	"github.com/TrueBlocks/trueblocks-shopping/internal/state"
 	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"github.com/wailsapp/wails/v2/pkg/options/mac"
-	"github.com/wailsapp/wails/v2/pkg/options/windows"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
-	app := NewApp()
+	application := app.NewApp()
+	stateManager := state.NewManager()
 
-	// Load settings for initial window position/size
-	savedSettings, err := settings.Load()
-	if err != nil {
-		savedSettings = &settings.Settings{
-			WindowWidth:  1280,
-			WindowHeight: 800,
-		}
-	}
-
-	// Use saved dimensions or defaults
-	width := savedSettings.WindowWidth
-	height := savedSettings.WindowHeight
-	if width < 800 {
-		width = 1280
-	}
-	if height < 600 {
-		height = 800
-	}
-
-	// Create application with options
-	err = wails.Run(&options.App{
-		Title:       "AcrylicMaster - Image Color Palette & Paint Matcher",
-		Width:       width,
-		Height:      height,
-		StartHidden: true, // Hide until DOM is ready to avoid flash of empty state
-		AssetServer: &assetserver.Options{
-			Assets: assets,
-		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup: func(ctx context.Context) {
-			app.startup(ctx)
-		},
-		OnDomReady: func(ctx context.Context) {
-			app.domReady(ctx)
-
-			// Set initial window position if saved
-			if savedSettings.WindowX != 0 || savedSettings.WindowY != 0 {
-				runtime.WindowSetPosition(ctx, savedSettings.WindowX, savedSettings.WindowY)
-			}
-
-			// Show window now that DOM is ready
-			runtime.WindowShow(ctx)
-		},
-		OnBeforeClose: func(ctx context.Context) bool {
-			// Save window position and size before closing
-			x, y := runtime.WindowGetPosition(ctx)
-			w, h := runtime.WindowGetSize(ctx)
-			app.SaveWindowSettings(x, y, w, h)
-			return false // Allow close
-		},
-		Bind: []interface{}{
-			app,
-		},
-		// Drag and Drop Configuration
-		// EnableFileDrop enables the internal mechanism to capture file paths dropped on the window
-		// DisableWebViewDrop prevents the WebView from "opening" the image (navigating away from the React app)
+	err := appkit.Run(appkit.AppConfig{
+		Title:             "AcrylicMaster",
+		Assets:            assets,
+		Width:             1280,
+		Height:            800,
+		BackgroundColour:  &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		GetWindowGeometry: stateManager.GetWindowGeometry,
+		OnStartup:         application.Startup,
+		OnShutdown:        application.Shutdown,
 		DragAndDrop: &options.DragAndDrop{
 			EnableFileDrop:     true,
 			DisableWebViewDrop: true,
 			CSSDropProperty:    "--wails-drop-target",
 			CSSDropValue:       "drop",
 		},
-		// Platform-specific options
-		Mac: &mac.Options{
-			TitleBar:             mac.TitleBarDefault(),
-			Appearance:           mac.NSAppearanceNameDarkAqua,
-			WebviewIsTransparent: false,
-			WindowIsTranslucent:  false,
+		SingleInstanceLock: &options.SingleInstanceLock{
+			UniqueId: "com.trueblocks.acrylic.d4e7f2a1-9c3b-4e8d-b5a6-1f2e3d4c5b6a",
+			OnSecondInstanceLaunch: func(data options.SecondInstanceData) {
+				_ = data
+				fmt.Println("Cannot start a second instance")
+			},
 		},
-		Windows: &windows.Options{
-			WebviewIsTransparent:              false,
-			WindowIsTranslucent:               false,
-			DisableWindowIcon:                 false,
-			DisableFramelessWindowDecorations: false,
+		Bind: []interface{}{
+			application,
 		},
 	})
 
 	if err != nil {
-		println("Error:", err.Error())
+		log.Fatal(err)
 	}
 }

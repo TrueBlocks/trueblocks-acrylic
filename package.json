@@ -1,0 +1,19 @@
+{
+  "name": "shopping",
+  "version": "2.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "build": "yarn --cwd frontend build && wails build",
+    "lint": "yarn --cwd frontend lint",
+    "lint:tsx": "yarn --cwd frontend lint",
+    "start": "wails dev",
+    "test": "go test ./... && yarn --cwd frontend test",
+    "test:go": "go test ./...",
+    "test:tsx": "yarn --cwd frontend test",
+    "type-check": "yarn --cwd frontend type-check"
+  },
+  "dependencies": {}
+}
