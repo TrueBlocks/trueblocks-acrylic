@@ -41,12 +41,12 @@ func (a *App) SavePastedImage(dataURL string) (string, error) {
 
 	dataDir := appkit.AppDirFor("acrylic")
 	tmpDir := filepath.Join(dataDir, "tmp")
-	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+	if err := os.MkdirAll(tmpDir, appkit.DirPermissions); err != nil {
 		return "", fmt.Errorf("create tmp dir: %w", err)
 	}
 
 	tmpFile := filepath.Join(tmpDir, "pasted"+ext)
-	if err := os.WriteFile(tmpFile, decoded, 0644); err != nil {
+	if err := os.WriteFile(tmpFile, decoded, appkit.FilePermissions); err != nil {
 		return "", fmt.Errorf("write temp file: %w", err)
 	}
 

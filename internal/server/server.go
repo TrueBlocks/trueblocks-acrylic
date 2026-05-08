@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
 )
 
 type FileServer struct {
@@ -18,7 +20,7 @@ type FileServer struct {
 
 func New(dataDir string) *FileServer {
 	logPath := filepath.Join(dataDir, "server.log")
-	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, appkit.FilePermissions)
 	var logger *log.Logger
 	if err != nil {
 		logger = log.Default()

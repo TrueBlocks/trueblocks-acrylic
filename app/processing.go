@@ -9,9 +9,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/db"
 	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
 	"github.com/TrueBlocks/trueblocks-art/packages/color"
-	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/db"
 	"github.com/nfnt/resize"
 )
 
@@ -35,7 +35,7 @@ func (a *App) ProcessImage(imagePath string, name string, nColors int) (Processi
 	}
 
 	projDir := filepath.Join(dataDir, "projects", fmt.Sprintf("%d", projectID))
-	if err := os.MkdirAll(projDir, 0755); err != nil {
+	if err := os.MkdirAll(projDir, appkit.DirPermissions); err != nil {
 		return ProcessingResult{}, fmt.Errorf("create project dir: %w", err)
 	}
 
