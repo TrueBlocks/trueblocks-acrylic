@@ -41,8 +41,23 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
   }, [projectId]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false;
+    Promise.all([GetProject(projectId), GetProjectColorsWithMatches(projectId)])
+      .then(([proj, projColors]) => {
+        if (cancelled) return;
+        setProject(proj);
+        setColorData(projColors || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        LogErr('Failed to load project:', err);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
 
   const handleParameterChange = useCallback(
     async (field: string, value: number | boolean | string) => {

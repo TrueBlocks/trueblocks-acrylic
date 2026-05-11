@@ -17,21 +17,23 @@ export function FavoriteDetail({ favoriteId }: FavoriteDetailProps) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const fav = await GetFavorite(favoriteId);
-      setFavorite(fav);
-    } catch (err) {
-      LogErr('Failed to load favorite:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [favoriteId]);
-
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false;
+    GetFavorite(favoriteId)
+      .then((fav) => {
+        if (cancelled) return;
+        setFavorite(fav);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        LogErr('Failed to load favorite:', err);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [favoriteId]);
 
   const handleDelete = useCallback(async () => {
     if (!favorite) return;

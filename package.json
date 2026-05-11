@@ -18,5 +18,8 @@
     "test:tsx": "yarn --cwd frontend test",
     "type-check": "yarn --cwd frontend type-check"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "vite": "^7.3.2"
+  }
 }

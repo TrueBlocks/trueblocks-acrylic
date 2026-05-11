@@ -13,25 +13,24 @@ export function PaintDetail({ paintId }: PaintDetailProps) {
   const [projectCount, setProjectCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [paintData, count] = await Promise.all([
-        GetPaint(paintId),
-        GetPaintProjectCount(paintId),
-      ]);
-      setPaint(paintData);
-      setProjectCount(count);
-    } catch (err) {
-      LogErr('Failed to load paint:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [paintId]);
-
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false;
+    Promise.all([GetPaint(paintId), GetPaintProjectCount(paintId)])
+      .then(([paintData, count]) => {
+        if (cancelled) return;
+        setPaint(paintData);
+        setProjectCount(count);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        LogErr('Failed to load paint:', err);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [paintId]);
 
   const handleToggleOwned = useCallback(async () => {
     if (!paint) return;
