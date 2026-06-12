@@ -4,12 +4,9 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
 	"github.com/TrueBlocks/trueblocks-art/packages/color"
-	_ "modernc.org/sqlite"
 )
 
 //go:embed schema.sql
@@ -21,28 +18,9 @@ type DB struct {
 }
 
 func New(dbPath string) (*DB, error) {
-	dir := filepath.Dir(dbPath)
-	if err := os.MkdirAll(dir, appkit.DirPermissions); err != nil {
-		return nil, fmt.Errorf("create db dir: %w", err)
-	}
-
-	conn, err := sql.Open("sqlite", dbPath)
+	conn, err := appkit.OpenSQLite(dbPath, nil)
 	if err != nil {
-		return nil, fmt.Errorf("open database: %w", err)
-	}
-
-	conn.SetMaxOpenConns(1)
-	conn.SetMaxIdleConns(1)
-	conn.SetConnMaxLifetime(0)
-
-	if _, err = conn.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		_ = conn.Close()
-		return nil, fmt.Errorf("enable foreign keys: %w", err)
-	}
-
-	if _, err = conn.Exec("PRAGMA journal_mode = WAL"); err != nil {
-		_ = conn.Close()
-		return nil, fmt.Errorf("set WAL mode: %w", err)
+		return nil, err
 	}
 
 	return &DB{conn: conn, path: dbPath}, nil
