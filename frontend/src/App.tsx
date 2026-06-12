@@ -2,7 +2,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { IconPhoto, IconPalette, IconHeart } from '@tabler/icons-react';
 import { WindowGetPosition, WindowGetSize, EventsOn, EventsOff } from '@wailsjs/runtime/runtime';
-import { useWindowGeometry, AppLayout, SplashScreen, type NavItem } from '@trueblocks/ui';
+import {
+  useWindowGeometry,
+  AppLayout,
+  SplashScreen,
+  KeyboardShortcutsHelp,
+  type NavItem,
+} from '@trueblocks/ui';
 import { DarkModeToggle } from '@trueblocks/ui';
 import { ProjectsPage } from '@/pages/ProjectsPage';
 import { PaintsPage } from '@/pages/PaintsPage';
@@ -109,26 +115,37 @@ function App() {
   Log('App rendered');
 
   return (
-    <AppLayout
-      title="Acrylic"
-      subtitle="Paint Matching Studio"
-      headerActions={<DarkModeToggle />}
-      navItems={navItems}
-      activeNav={activeNav}
-      onNavigate={handleNavigate}
-      initialSidebarWidth={initialSidebarWidth}
-      saveSidebarWidth={SetSidebarWidth}
-    >
-      <Routes>
-        <Route path="/" element={<ProjectsPage />} />
-        <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/projects/:id" element={<ProjectsPage />} />
-        <Route path="/paints" element={<PaintsPage />} />
-        <Route path="/paints/:id" element={<PaintsPage />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/favorites/:id" element={<FavoritesPage />} />
-      </Routes>
-    </AppLayout>
+    <>
+      <KeyboardShortcutsHelp
+        views={[
+          { num: 1, id: 'projects', label: 'Projects' },
+          { num: 2, id: 'paints', label: 'Paints' },
+          { num: 3, id: 'favorites', label: 'Favorites' },
+        ]}
+        showTableShortcuts={false}
+        showDetailShortcuts={false}
+      />
+      <AppLayout
+        title="Acrylic"
+        subtitle="Paint Matching Studio"
+        headerActions={<DarkModeToggle />}
+        navItems={navItems}
+        activeNav={activeNav}
+        onNavigate={handleNavigate}
+        initialSidebarWidth={initialSidebarWidth}
+        saveSidebarWidth={SetSidebarWidth}
+      >
+        <Routes>
+          <Route path="/" element={<ProjectsPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/:id" element={<ProjectsPage />} />
+          <Route path="/paints" element={<PaintsPage />} />
+          <Route path="/paints/:id" element={<PaintsPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/favorites/:id" element={<FavoritesPage />} />
+        </Routes>
+      </AppLayout>
+    </>
   );
 }
 
