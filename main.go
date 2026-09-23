@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
 	"github.com/TrueBlocks/trueblocks-acrylic/v2/app"
 	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/state"
+	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 )
 
