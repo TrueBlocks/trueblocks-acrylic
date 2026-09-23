@@ -49,4 +49,4 @@ Useful commands:
 - Database: SQLite via `modernc.org/sqlite`
 - Shared libraries: `packages/appkit`, `packages/color`, `@trueblocks/ui`, `@trueblocks/scaffold`
 
-![README infographic](README-infographic.png)
+![README infographic](README-infographic.jpg)
